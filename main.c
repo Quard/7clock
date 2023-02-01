@@ -23,6 +23,12 @@
 #include <xc.h>
 
 #include "display.h"
+#include "ds1302.h"
+
+
+void timer_init(void);
+void rtc_init(void);
+
 
 void main(void) {
     OSCCONbits.IRCF = 0b1101;  // 4 MHz
@@ -31,9 +37,34 @@ void main(void) {
     TRISB = 0;
 
     display_init();
+    rtc_init();
+    timer_init();
+
+//    ds1302_set_time(20, 41);
+
+    uint8_t hour = 0xFF, minutes = 0;
     while (1) {
-        display_show_load();
+        if (hour != 0xFF) {
+            display_show(hour, minutes, 0);
+        } else {
+            display_show_load();
+        }
+
+        if (TMR1IF == 1) {
+            ds1302_get_time(&hour, &minutes);
+            TMR1IF = 0;
+        }
     }
 
     return;
+}
+
+void timer_init(void) {
+    T1CON = 0b00110001;
+}
+
+void rtc_init(void) {
+    if (!ds1302_is_enabled()) {
+        ds1302_enable();
+    }
 }
