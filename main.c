@@ -31,10 +31,16 @@ void timer_init(void);
 void rtc_init(void);
 void adc_init(void);
 void pwm_init(void);
+void btn_init(void);
+inline void pwm_set_duty(uint8_t duty);
 void brightness_control(void);
+uint8_t btn_get_press_type(uint32_t delay);
 
 
 volatile uint32_t sys_tick;
+volatile uint8_t btn_pressed;
+volatile uint32_t btn_last_update;
+uint8_t min_brightness = 9;
 
 extern volatile uint8_t _display_spi_sent;
 
@@ -50,6 +56,7 @@ void main(void) {
     rtc_init();
     adc_init();
     pwm_init();
+    btn_init();
 
 //    ds1302_set_time(20, 41);
 
@@ -67,6 +74,16 @@ void main(void) {
             brightness_control();
             last_update = sys_tick;
         }
+
+        if (btn_pressed) {
+            min_brightness++;
+            if (min_brightness > 9) {
+                min_brightness = 1;
+            }
+            pwm_set_duty(min_brightness);
+
+            btn_pressed = 0;
+        }
     }
 
     return;
@@ -83,6 +100,16 @@ __interrupt() void ISR(void) {
     if (SSP1IF) {
         _display_spi_sent = 1;
         SSP1IF = 0;
+    }
+    if (INTF) {
+        if (INTEDG) {
+            INTEDG = 0;
+            btn_last_update = sys_tick;
+        } else {
+            INTEDG = 1;
+            btn_pressed = btn_get_press_type(sys_tick - btn_last_update);
+        }
+        INTF = 0;
     }
 }
 
@@ -122,6 +149,14 @@ void pwm_init(void) {
     DC1B1 = 0;
 }
 
+void btn_init(void) {
+    btn_pressed = 0;
+
+    TRISB0 = 1;
+    INTEDG = 1;
+    INTE = 1;
+}
+
 inline void pwm_set_duty(uint8_t duty) {
     CCPR1L = duty;
 }
@@ -130,10 +165,20 @@ void brightness_control(void) {
     if ((ADCON0 & 0b10) == 0) {
         uint16_t val = (uint16_t)(((ADRESH & 0b11) << 8) | ADRESL);
         if (val < 400) {
-            pwm_set_duty(3);
+            pwm_set_duty(1);
         } else {
-            pwm_set_duty(9);
+            pwm_set_duty(min_brightness);
         }
         ADCON0 |= (1 << 1);
     }
+}
+
+uint8_t btn_get_press_type(uint32_t delay) {
+    if (delay > 50 && delay < 250) {
+        return 1;  // short press
+    } else if (delay > 500 && delay < 2000) {
+        return 2;  // long press
+    }
+
+    return 0;
 }

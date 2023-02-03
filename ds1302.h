@@ -5,7 +5,7 @@
 
 #include <xc.h>
 
-#define DS1302_PIN_CE         RB0
+#define DS1302_PIN_CE         RA6
 #define DS1302_PIN_CLK        RA0
 #define DS1302_PIN_DATA_W     RA7
 #define DS1302_PIN_DATA_R     LATA7
