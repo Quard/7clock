@@ -2,6 +2,8 @@
 
 inline void _display_write(uint8_t value, uint8_t idx);
 
+volatile uint8_t _display_spi_sent;
+
 
 const static uint8_t numbers[] = {
     //FGEDCBAx
@@ -39,11 +41,12 @@ void display_show_load(void) {
 
 inline void _display_write(uint8_t value, uint8_t idx) {
     RB5 = 0;
-    SSP1IF = 0;
+    _display_spi_sent = 0;
     SSP1BUF = value;
-    while (SSP1IF != 1);
-    SSP1IF = 0;
+    while (_display_spi_sent != 1);
+    _display_spi_sent = 0;
     SSP1BUF = 0xFF & ~(1 << (1 + idx));
-    while (SSP1IF != 1);
+    while (_display_spi_sent != 1);
+    _display_spi_sent = 0;
     RB5 = 1;
 }

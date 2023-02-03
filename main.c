@@ -26,6 +26,7 @@
 #include "ds1302.h"
 
 
+void interrupt_init(void);
 void timer_init(void);
 void rtc_init(void);
 void adc_init(void);
@@ -33,21 +34,27 @@ void pwm_init(void);
 void brightness_control(void);
 
 
+volatile uint32_t sys_tick;
+
+extern volatile uint8_t _display_spi_sent;
+
 void main(void) {
     OSCCONbits.IRCF = 0b1101;  // 4 MHz
 
     TRISA = 0;
     TRISB = 0;
 
+    interrupt_init();
+    timer_init();
     display_init();
     rtc_init();
     adc_init();
     pwm_init();
-    timer_init();
 
 //    ds1302_set_time(20, 41);
 
     uint8_t hour = 0xFF, minutes = 0;
+    uint32_t last_update = 0;
     while (1) {
         if (hour != 0xFF) {
             display_show(hour, minutes, 0);
@@ -55,17 +62,40 @@ void main(void) {
             display_show_load();
         }
 
-        if (TMR1IF == 1) {
+        if (sys_tick - last_update >= 1000) {
             ds1302_get_time(&hour, &minutes);
             brightness_control();
-            TMR1IF = 0;
+            last_update = sys_tick;
         }
     }
 
     return;
 }
 
+__interrupt() void ISR(void) {
+    if (TMR1IF) {
+        sys_tick++;
+
+        TMR1H = 0xFF;
+        TMR1L = 0x06;
+        TMR1IF = 0;
+    }
+    if (SSP1IF) {
+        _display_spi_sent = 1;
+        SSP1IF = 0;
+    }
+}
+
+void interrupt_init(void) {
+    GIE = 1;
+    PEIE = 1;
+}
+
 void timer_init(void) {
+    sys_tick = 0;
+    TMR1H = 0xFF;
+    TMR1L = 0x06;
+    TMR1IE = 1;
     T1CON = 0b00110001;
 }
 
