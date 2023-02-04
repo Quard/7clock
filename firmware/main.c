@@ -24,6 +24,8 @@
 
 #include "display.h"
 #include "ds1302.h"
+#include "button.h"
+#include "state_machine.h"
 
 
 void interrupt_init(void);
@@ -34,13 +36,15 @@ void pwm_init(void);
 void btn_init(void);
 inline void pwm_set_duty(uint8_t duty);
 void brightness_control(void);
-uint8_t btn_get_press_type(uint32_t delay);
+ButtonState btn_get_press_type(uint32_t delay);
 
 
 volatile uint32_t sys_tick;
-volatile uint8_t btn_pressed;
+State state = State_Clock;
+volatile ButtonState btn_pressed;
 volatile uint32_t btn_last_update;
-uint8_t min_brightness = 9;
+uint8_t min_brightness;
+uint8_t display_mask = 0b10001111;
 
 extern volatile uint8_t _display_spi_sent;
 
@@ -49,6 +53,7 @@ void main(void) {
 
     TRISA = 0;
     TRISB = 0;
+    min_brightness = MIN_BRIGHTNESS;
 
     interrupt_init();
     timer_init();
@@ -62,28 +67,22 @@ void main(void) {
 
     uint8_t hour = 0xFF, minutes = 0;
     uint32_t last_update = 0;
+    uint32_t flash = 0;
     while (1) {
-        if (hour != 0xFF) {
-            display_show(hour, minutes, 0);
-        } else {
-            display_show_load();
-        }
-
         if (sys_tick - last_update >= 1000) {
             ds1302_get_time(&hour, &minutes);
             brightness_control();
             last_update = sys_tick;
         }
 
-        if (btn_pressed) {
-            min_brightness++;
-            if (min_brightness > 9) {
-                min_brightness = 1;
+        if (sys_tick - flash > 499) {
+            if (state >= State_SetupTimeMinutesL) {
+                display_mask ^= 1 << (4 - state);
             }
-            pwm_set_duty(min_brightness);
-
-            btn_pressed = 0;
+            flash = sys_tick;
         }
+
+        state_transition_table[state][btn_pressed](&hour, &minutes, &state, (ButtonState *)&btn_pressed);
     }
 
     return;
@@ -119,6 +118,7 @@ void interrupt_init(void) {
 }
 
 void timer_init(void) {
+    // SYS TICK timer
     sys_tick = 0;
     TMR1H = 0xFF;
     TMR1L = 0x06;
@@ -145,12 +145,10 @@ void pwm_init(void) {
     T2CON = 0b00000100;  // TIM2 on, Prescaler 1
     CCP1CON = 0b00001100;
     TRISB3 = 0;
-    DC1B0 = 0;
-    DC1B1 = 0;
 }
 
 void btn_init(void) {
-    btn_pressed = 0;
+    btn_pressed = ButtonState_Idle;
 
     TRISB0 = 1;
     INTEDG = 1;
@@ -173,11 +171,11 @@ void brightness_control(void) {
     }
 }
 
-uint8_t btn_get_press_type(uint32_t delay) {
-    if (delay > 50 && delay < 250) {
-        return 1;  // short press
+ButtonState btn_get_press_type(uint32_t delay) {
+    if (delay > 25 && delay < 250) {
+        return ButtonState_ShortPress;
     } else if (delay > 500 && delay < 2000) {
-        return 2;  // long press
+        return ButtonState_LongPress;
     }
 
     return 0;

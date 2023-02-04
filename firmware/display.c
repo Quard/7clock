@@ -26,11 +26,19 @@ void display_init(void) {
     RB5 = 1;
 }
 
-void display_show(uint8_t hours, uint8_t minutes, uint8_t dot) {
-    _display_write(numbers[hours / 10], 0);
-    _display_write(numbers[hours % 10] | dot, 1);
-    _display_write(numbers[minutes / 10], 2);
-    _display_write(numbers[minutes % 10], 3);
+void display_show(uint8_t hours, uint8_t minutes, uint8_t mask) {
+    if (mask & (1 << DISPLAY_MASK_MINUTE_L)) {
+        _display_write(numbers[hours / 10], 0);
+    }
+    if (mask & (1 << DISPLAY_MASK_MINUTE_H)) {
+        _display_write(numbers[hours % 10], 1);
+    }
+    if (mask & (1 << DISPLAY_MASK_HOUR_L)) {
+        _display_write(numbers[minutes / 10], 2);
+    }
+    if (mask & (1 << DISPLAY_MASK_HOUR_H)) {
+        _display_write(numbers[minutes % 10], 3);
+    }
 }
 
 void display_show_load(void) {
