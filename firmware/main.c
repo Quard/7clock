@@ -79,6 +79,7 @@ void main(void) {
             if (state >= State_SetupTimeMinutesL) {
                 display_mask ^= 1 << (4 - state);
             }
+            display_mask ^= 1 << DISPLAY_MASK_DOT;
             flash = sys_tick;
         }
 
