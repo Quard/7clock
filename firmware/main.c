@@ -94,7 +94,7 @@ __interrupt() void ISR(void) {
         sys_tick++;
 
         TMR1H = 0xFF;
-        TMR1L = 0x06;
+        TMR1L = 0x83;
         TMR1IF = 0;
     }
     if (SSP1IF) {
@@ -122,7 +122,7 @@ void timer_init(void) {
     // SYS TICK timer
     sys_tick = 0;
     TMR1H = 0xFF;
-    TMR1L = 0x06;
+    TMR1L = 0x83;
     TMR1IE = 1;
     T1CON = 0b00110001;
 }

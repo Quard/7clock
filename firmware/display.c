@@ -34,7 +34,10 @@ void display_show(uint8_t hours, uint8_t minutes, uint8_t mask) {
         _display_write(numbers[hours % 10], 1);
     }
     if (mask & (1 << DISPLAY_MASK_HOUR_L)) {
-        uint8_t val = numbers[minutes / 10] | (mask & (1 << DISPLAY_MASK_DOT));
+        uint8_t val = numbers[minutes / 10];
+        if (mask & (1 << DISPLAY_MASK_DOT)) {
+            val |= 1;
+        }
         _display_write(val, 2);
     }
     if (mask & (1 << DISPLAY_MASK_HOUR_H)) {
