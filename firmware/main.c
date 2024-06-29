@@ -102,11 +102,11 @@ __interrupt() void ISR(void) {
         SSP1IF = 0;
     }
     if (INTF) {
-        if (INTEDG) {
-            INTEDG = 0;
+        if (!INTEDG) {
+            INTEDG = 1;
             btn_last_update = sys_tick;
         } else {
-            INTEDG = 1;
+            INTEDG = 0;
             btn_pressed = btn_get_press_type(sys_tick - btn_last_update);
         }
         INTF = 0;
@@ -152,7 +152,7 @@ void btn_init(void) {
     btn_pressed = ButtonState_Idle;
 
     TRISB0 = 1;
-    INTEDG = 1;
+    INTEDG = 0;
     INTE = 1;
 }
 
@@ -173,9 +173,9 @@ void brightness_control(void) {
 }
 
 ButtonState btn_get_press_type(uint32_t delay) {
-    if (delay > 25 && delay < 250) {
+    if (delay > 25 && delay < 500) {
         return ButtonState_ShortPress;
-    } else if (delay > 500 && delay < 2000) {
+    } else if (delay > 1000 && delay < 2000) {
         return ButtonState_LongPress;
     }
 
