@@ -37,6 +37,7 @@ void btn_init(void);
 inline void pwm_set_duty(uint8_t duty);
 void brightness_control(void);
 ButtonState btn_get_press_type(uint32_t delay);
+uint16_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max);
 
 
 volatile uint32_t sys_tick;
@@ -160,14 +161,16 @@ inline void pwm_set_duty(uint8_t duty) {
     CCPR1L = duty;
 }
 
+uint8_t get_brightness(uint16_t light) {
+    if (light < 400) return 1;
+    
+    return (uint8_t)map(light, 400, 1023, 4, 255);
+}
+
 void brightness_control(void) {
     if ((ADCON0 & 0b10) == 0) {
         uint16_t val = (uint16_t)(((ADRESH & 0b11) << 8) | ADRESL);
-        if (val < 400) {
-            pwm_set_duty(1);
-        } else {
-            pwm_set_duty(min_brightness);
-        }
+        pwm_set_duty(get_brightness(val));
         ADCON0 |= (1 << 1);
     }
 }
@@ -180,4 +183,8 @@ ButtonState btn_get_press_type(uint32_t delay) {
     }
 
     return 0;
+}
+
+uint16_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
