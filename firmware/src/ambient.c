@@ -19,11 +19,8 @@ void ambient_init(void) {
   ADC0.MUXPOS = ADC_MUXPOS_AIN4_gc;
 }
 
-void ambient_start_measuring(void) {  
+void ambient_start_measuring(void) {
   ADC0.COMMAND = ADC_STCONV_bm;
-  // while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
-  // ADC0.INTFLAGS = ADC_RESRDY_bm;
-  // *val = ADC0.RES >> 3;
 }
 
 uint16_t ambient_get(void) {
