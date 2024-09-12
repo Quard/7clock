@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "SA10-21SURKWA")(type "KiCad")(uri "${KIPRJMOD}/Symbols/SA10-21SURKWA/SA10-21SURKWA.kicad_sym")(options "")(descr ""))
+)
