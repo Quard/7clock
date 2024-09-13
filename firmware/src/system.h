@@ -5,6 +5,7 @@
 
 
 void system_init(void);
+uint32_t get_tick(void);
+void system_btn_init(void);
 
 #endif	/* __SYSTEM_H__ */
-

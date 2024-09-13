@@ -6,5 +6,13 @@
 #define DISPLAY_SHCP_PIN       3
 #define DISPLAY_BRIGHNESS_PIN  5
 
-#endif	/* __DEVICE_H__ */
+#define BUTTON_PIN              6
+#define BUTTON_PRESS_SHORT_MIN  25
+#define BUTTON_PRESS_SHORT_MAX  250
+#define BUTTON_PRESS_LONG_MIN   2000
+#define BUTTON_PRESS_LONG_MAX   5000
 
+#define BUTTON_IS_SHORT_PRESS(ms) (ms >= BUTTON_PRESS_SHORT_MIN && ms < BUTTON_PRESS_SHORT_MAX)
+#define BUTTON_IS_LONG_PRESS(ms)  (ms >= BUTTON_PRESS_LONG_MIN && ms < BUTTON_PRESS_LONG_MAX)
+
+#endif	/* __DEVICE_H__ */
