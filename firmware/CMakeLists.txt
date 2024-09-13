@@ -46,12 +46,13 @@ set(CMAKE_ASM_FLAGS   "${CFLAGS}")
 
 include_directories("src/")
 set(SRC_FILES
-	"src/main.c"
-	"src/display.c"
-	"src/rtc.c"
-	"src/system.c"
-	"src/ambient.c"
-	"src/peripherals/twi.c")
+    "src/display.c"
+    "src/rtc.c"
+    "src/system.c"
+    "src/ambient.c"
+    "src/state.c"
+    "src/peripherals/twi.c"
+    "src/main.c")
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 set_target_properties("${PROJECT_NAME}" PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.elf")

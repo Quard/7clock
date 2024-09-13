@@ -34,11 +34,11 @@ void display_sign(uint8_t sign, uint8_t idx) {
   display(SIGNS[sign], idx);
 }
 
-void display_show_clock(uint8_t hours, uint8_t minutes) {
-  display_sign(minutes / 10, 0xFF & ~(1 << 2));
-  display_sign(minutes % 10, 0xFF & ~(1 << 3));
-  display_sign(hours / 10, 0xFF & ~(1 << 0));
-  display_sign(hours % 10, 0xFF & ~(1 << 1));
+void display_show_clock(uint8_t hours, uint8_t minutes, uint8_t display_mask) {
+  if (display_mask & (1 << 2)) display_sign(minutes / 10, 0xFF & ~(1 << 2));
+  if (display_mask & (1 << 3)) display_sign(minutes % 10, 0xFF & ~(1 << 3));
+  if (display_mask & (1 << 0)) display_sign(hours / 10, 0xFF & ~(1 << 0));
+  if (display_mask & (1 << 1)) display_sign(hours % 10, 0xFF & ~(1 << 1));
 }
 
 void display_brightness_init(void) {
