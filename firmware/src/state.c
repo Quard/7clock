@@ -10,11 +10,11 @@ static uint8_t digit_flashing;
 
 
 void state_clock_idle(uint8_t *hours, uint8_t *minutes, State_t *state, ButtonState_t *btn_state) {
-  if (digit_flashing > 0 && get_tick() - tick > 1000) {
-    display_mask ^= (1 << (digit_flashing - 1));
-    tick = get_tick();
-
+  if (get_tick() - tick > 1000) {
+    if (digit_flashing > 0) display_mask ^= (1 << (digit_flashing - 1));
     if (*state == State_Idle) rtc_get_datetime(hours, minutes);
+
+    tick = get_tick();
   }
 
   display_show_clock(*hours, *minutes, display_mask);

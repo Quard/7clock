@@ -22,14 +22,13 @@ int main(void) {
   rtc_init();
   ambient_init();
   system_btn_init();
+  display_brightness_init();
 
   sei();
 
-  ambient_start_measuring();
-  // rtc_set_time(18, 34);
-
-  display_brightness_init();
   display_brightness_set(100);
+  ambient_start_measuring();
+  //rtc_set_time(18, 20);
 
   uint8_t minutes = 43, hours = 9;
   uint16_t ambient_light = 4321;
