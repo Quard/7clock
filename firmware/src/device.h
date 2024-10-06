@@ -1,0 +1,18 @@
+#ifndef __DEVICE_H__
+#define	__DEVICE_H__
+
+#define DISPLAY_DS_PIN         1
+#define DISPLAY_STCP_PIN       2
+#define DISPLAY_SHCP_PIN       3
+#define DISPLAY_BRIGHNESS_PIN  5
+
+#define BUTTON_PIN              6
+#define BUTTON_PRESS_SHORT_MIN  25
+#define BUTTON_PRESS_SHORT_MAX  250
+#define BUTTON_PRESS_LONG_MIN   1600
+#define BUTTON_PRESS_LONG_MAX   5000
+
+#define BUTTON_IS_SHORT_PRESS(ms) (ms >= BUTTON_PRESS_SHORT_MIN && ms < BUTTON_PRESS_SHORT_MAX)
+#define BUTTON_IS_LONG_PRESS(ms)  (ms >= BUTTON_PRESS_LONG_MIN && ms < BUTTON_PRESS_LONG_MAX)
+
+#endif	/* __DEVICE_H__ */

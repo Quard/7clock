@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "SA10-21SURKWA")(type "KiCad")(uri "${KIPRJMOD}/Symbols/SA10-21SURKWA")(options "")(descr ""))
+  (lib (name "CR1220D-011")(type "KiCad")(uri "${KIPRJMOD}/Symbols/CR1220D-011/CR1220D-011.pretty")(options "")(descr ""))
+)
